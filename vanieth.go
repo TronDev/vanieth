@@ -25,13 +25,43 @@ import (
 
 // "main" method, generates a public key,  address
 //
-func addrGen(toMatch string) {
+func addrGen(toMatch string, mode uint8) {
 	key, _ := crypto.GenerateKey()
 	addr := crypto.PubkeyToAddress(key.PublicKey)
-	addrStr := hex.EncodeToString(addr[:])
-	addrMatch(addrStr, toMatch, key)
+	if mode == 0 {
+		addrStr := hex.EncodeToString(addr[:])
+		addrMatch(addrStr, toMatch, key)
+	} else if mode == 1 {
+		numOnly(addr[:], key)
+	}
 }
 
+//Check if the address is only numbers
+func numOnly(addr []byte, key *ecdsa.PrivateKey) {
+	var byteA uint8
+	var byteB uint8
+	var success bool
+	success = true
+	for _, element := range addr {
+		byteA = element>>4
+		byteB = element<<4>>4
+		if byteA > 9 {
+			success = false
+			break
+		}
+		if byteB > 9 {
+			success = false
+			break
+		}
+
+	}
+	if success {
+		keyStr := hex.EncodeToString(crypto.FromECDSA(key))
+		addrFound(hex.EncodeToString(addr), keyStr)
+		found = true
+		os.Exit(0)
+	}
+}
 // tries to match the address with the string provided by the user, exits if successful
 //
 func addrMatch(addrStr string, toMatch string, key *ecdsa.PrivateKey) {
@@ -55,9 +85,9 @@ func watchman() {
 		addressPerSecond = 0
 	}
 }
-func worker(toMatch string) {
+func worker(toMatch string, mode uint8) {
 	for !found {
-		addrGen(toMatch)
+		addrGen(toMatch, mode)
 		addressPerSecond += 1
 	}
 }
@@ -78,7 +108,13 @@ func main() {
 	}
 	go watchman()
 	//TODO create workers up to GOMAXPROCS
-	worker(toMatch)
+	if toMatch != "num" {
+		fmt.Printf("Looking for 0x%s...", toMatch)
+		worker(toMatch, 0)
+	} else {
+		fmt.Printf("Looking for numbers-only address")
+		worker(toMatch, 1)
+	}
 }
 
 // non-interesting functions follow...
