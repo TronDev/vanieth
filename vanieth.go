@@ -51,7 +51,7 @@ func addrMatch(addrStr string, toMatch string, key *ecdsa.PrivateKey) {
 func watchman() {
 	for !found {
 		time.Sleep(15000 * time.Millisecond)
-		fmd.Printf("Generating addresses at %dA/s", addressPerSecond/15)
+		fmt.Printf("Generating addresses at %dA/s", addressPerSecond/15)
 		addressPerSecond = 0
 	}
 }
