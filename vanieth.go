@@ -109,10 +109,10 @@ func main() {
 	go watchman()
 	//TODO create workers up to GOMAXPROCS
 	if toMatch != "num" {
-		fmt.Printf("Looking for 0x%s...", toMatch)
+		fmt.Printf("Looking for 0x%s...\n", toMatch)
 		worker(toMatch, 0)
 	} else {
-		fmt.Printf("Looking for numbers-only address")
+		fmt.Printf("Looking for numbers-only address\n")
 		worker(toMatch, 1)
 	}
 }
