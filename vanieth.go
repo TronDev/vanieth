@@ -42,15 +42,32 @@ func addrMatch(addrStr string, toMatch string, key *ecdsa.PrivateKey) {
 		// fmt.Println("pub:", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey))) // uncomment if you want the public key
 		keyStr := hex.EncodeToString(crypto.FromECDSA(key))
 		addrFound(addrStr, keyStr)
+		found = true
 		os.Exit(0) // here the program exits when it found a match
 	}
 }
 
+//Keeps track of addresses per second
+func watchman() {
+	for !found {
+		time.Sleep(15000 * time.Millisecond)
+		fmd.Printf("Generating addresses at %dA/s", addressPerSecond/15)
+		addressPerSecond = 0
+	}
+}
+func worker(toMatch string) {
+	for !found {
+		addrGen(toMatch)
+		addressPerSecond += 1
+	}
+}
 // main, executes addrGen ad-infinitum, until a match is found
 //
+var addressPerSecond int
+var found bool
 func main() {
 	runtime.GOMAXPROCS(8)
-
+	found = false
 	var toMatch string
 	if len(os.Args) == 1 {
 		errNoArg()
@@ -59,11 +76,9 @@ func main() {
 		toMatch = os.Args[1]
 		// errWrongMatch(toMatch)
 	}
-
-	for true {
-		go addrGen(toMatch)
-		time.Sleep(1 * time.Millisecond)
-	}
+	go watchman()
+	//TODO create workers up to GOMAXPROCS
+	worker(toMatch)
 }
 
 // non-interesting functions follow...
