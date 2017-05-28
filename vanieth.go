@@ -96,7 +96,8 @@ func worker(toMatch string, mode uint8) {
 var addressPerSecond int
 var found bool
 func main() {
-	runtime.GOMAXPROCS(8)
+	var numProcessors := runtime.NumCPU()
+	runtime.GOMAXPROCS(numProcessors+1)
 	found = false
 	var toMatch string
 	if len(os.Args) == 1 {
@@ -110,10 +111,14 @@ func main() {
 	//TODO create workers up to GOMAXPROCS
 	if toMatch != "num" {
 		fmt.Printf("Looking for 0x%s...\n", toMatch)
-		worker(toMatch, 0)
+		for i := 1; i <= numProcessors; i++ {
+			worker(toMatch, 0)
+		}
 	} else {
 		fmt.Printf("Looking for numbers-only address\n")
-		worker(toMatch, 1)
+		for i := 1; i <= numProcessors; i++ {
+			worker(toMatch, 1)
+		}
 	}
 }
 
@@ -123,6 +128,9 @@ func addrFound(addrStr string, keyStr string) {
 	println("Address found:")
 	fmt.Printf("addr: 0x%s\n", addrStr)
 	fmt.Printf("pvt: 0x%s\n", keyStr)
+	f, err := os.OpenFile("output.txt", os.O_APPEND, 0666) 
+	n, err := f.WriteString("addr: 0x" + addrStr + "\npvt: 0x" + keyStr + "\n-----\n")
+	f.Close()
 	println("\nexiting...")
 }
 
