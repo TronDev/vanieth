@@ -96,7 +96,7 @@ func worker(toMatch string, mode uint8) {
 var addressPerSecond int
 var found bool
 func main() {
-	var numProcessors := runtime.NumCPU()
+	var numProcessors int := runtime.NumCPU()
 	runtime.GOMAXPROCS(numProcessors+1)
 	found = false
 	var toMatch string
