@@ -129,7 +129,7 @@ func addrFound(addrStr string, keyStr string) {
 	println("Address found:")
 	fmt.Printf("addr: 0x%s\n", addrStr)
 	fmt.Printf("pvt: 0x%s\n", keyStr)
-	f, err := os.OpenFile("output.txt", os.O_APPEND, 0666) 
+	f, _ := os.OpenFile("output.txt", os.O_APPEND, 0666) 
 	f.WriteString("addr: 0x" + addrStr + "\npvt: 0x" + keyStr + "\n-----\n")
 	f.Close()
 	println("\nexiting...")
